@@ -152,10 +152,6 @@ while RUNNING:
     #print(BOARD.board)          
     DISPLAY.fill(BACKGROUND)
     BOARD.draw_grid(DISPLAY)
-    pygame.draw.line(DISPLAY, (255, 255, 255), (0, 100), (100, 100), 5)
-    pygame.draw.line(DISPLAY, (255, 255, 255), (500, 100), (600, 100), 5)
-    pygame.draw.line(DISPLAY, (255, 255, 255), (100, 0), (100, 800), 5)
-    pygame.draw.line(DISPLAY, (255, 255, 255), (500, 0), (500, 800), 5)
     for block in BLOCKS:
         pygame.draw.rect(DISPLAY, COLORS[CURRENT_BLOCK[0]], block.rect)
         
@@ -163,4 +159,8 @@ while RUNNING:
         for row in range(BOARD.row):
             if BOARD.board[row][col] != "":
                 pygame.draw.rect(DISPLAY, COLORS[BOARD.board[row][col]], BOARD.grid[row][col])
+    pygame.draw.line(DISPLAY, (255, 255, 255), (0, 100), (100, 100), 5)
+    pygame.draw.line(DISPLAY, (255, 255, 255), (500, 100), (600, 100), 5)
+    pygame.draw.line(DISPLAY, (255, 255, 255), (100, 0), (100, 800), 5)
+    pygame.draw.line(DISPLAY, (255, 255, 255), (500, 0), (500, 800), 5)
     pygame.display.flip()
