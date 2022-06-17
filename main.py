@@ -22,6 +22,16 @@ GO_RIGHT = True
 GO_LEFT = True
 LEFT_HIT = True
 RIGHT_HIT = True
+COLORS = {
+    "I": (0, 240, 240),
+    "J": (0, 0, 240),
+    "L": (240, 160, 0),
+    "O": (240, 240, 0),
+    "S": (0, 240, 0),
+    "T": (160, 0, 240),
+    "Z": (240, 0, 0),
+}
+
 def random_block():
     global CURRENT_BLOCK, GO_LEFT, GO_RIGHT, LEFT_HIT, RIGHT_HIT
     GO_LEFT = True
@@ -147,10 +157,10 @@ while RUNNING:
     pygame.draw.line(DISPLAY, (255, 255, 255), (100, 0), (100, 800), 5)
     pygame.draw.line(DISPLAY, (255, 255, 255), (500, 0), (500, 800), 5)
     for block in BLOCKS:
-        pygame.draw.rect(DISPLAY, (238, 238, 238), block.rect)
+        pygame.draw.rect(DISPLAY, COLORS[CURRENT_BLOCK[0]], block.rect)
         
     for col in range(BOARD.col):
         for row in range(BOARD.row):
             if BOARD.board[row][col] != "":
-                pygame.draw.rect(DISPLAY, (238, 238, 238), BOARD.grid[row][col])
+                pygame.draw.rect(DISPLAY, COLORS[BOARD.board[row][col]], BOARD.grid[row][col])
     pygame.display.flip()
