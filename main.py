@@ -20,11 +20,14 @@ DROP = 0
 SPEED = 7
 GO_RIGHT = True
 GO_LEFT = True
-BLOCK_STOP = []
+LEFT_HIT = True
+RIGHT_HIT = True
 def random_block():
-    global CURRENT_BLOCK, GO_LEFT, GO_RIGHT
+    global CURRENT_BLOCK, GO_LEFT, GO_RIGHT, LEFT_HIT, RIGHT_HIT
     GO_LEFT = True
     GO_RIGHT = True
+    RIGHT_HIT = True
+    LEFT_HIT = True
     CURRENT_BLOCK = np.random.choice(["I", "J", "L", "O", "S", "T", "Z"], 1)
     print(CURRENT_BLOCK)
     if CURRENT_BLOCK == "I":
@@ -65,17 +68,19 @@ def random_block():
         
 random_block()
 while RUNNING:
+    print(LEFT_HIT)
     dt = CLOCK.tick(60) / 1000
     DROP += SPEED*dt
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT and GO_RIGHT:
+            if event.key == pygame.K_RIGHT and GO_RIGHT and RIGHT_HIT:
                 GO_LEFT = True
                 for block in BLOCKS:
                     block.x += 40
-            if event.key == pygame.K_LEFT and GO_LEFT:
+                                
+            if event.key == pygame.K_LEFT and GO_LEFT and LEFT_HIT:
                 GO_RIGHT = True
                 for block in BLOCKS:
                     block.x -= 40      
@@ -94,7 +99,7 @@ while RUNNING:
         if block.x <= 100:
             block.x = 100
             GO_LEFT = False
-        block.update()    
+        block.update()
     # collisions with floor
     for block in BLOCKS:
         if block.y > 760:
@@ -113,7 +118,16 @@ while RUNNING:
     for col in range(BOARD.col):
         for row in range(BOARD.row):
             if BOARD.board[row][col] != "":
-                for block in BLOCKS:
+                for count, block in enumerate(BLOCKS):
+                    # PLACED FLOOR
+                    #left wall
+                    if block.rect.midleft == BOARD.grid[row][col].midright:
+                        LEFT_HIT = False
+                        
+                    # right wall
+                    if block.rect.midright == BOARD.grid[row][col].midleft:
+                        RIGHT_HIT = False
+                               
                     if block.rect == BOARD.grid[row][col]:
                         print(block.rect, BOARD.grid[row][col])
                         for block in BLOCKS:
@@ -124,12 +138,7 @@ while RUNNING:
                                     if BOARD.grid[row][col] == block.rect:
                                         BOARD.board[row][col] = CURRENT_BLOCK[0]
                         BLOCKS = []
-                        random_block()
-                        
-        print(BOARD.board)           
-                        #random_block()
-                                    
-                                           
+                        random_block()                
     #print(BOARD.board)          
     DISPLAY.fill(BACKGROUND)
     BOARD.draw_grid(DISPLAY)
