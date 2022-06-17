@@ -8,7 +8,6 @@ class sizes:
         self.width = width
         self.heigth = height
         self.rect = pygame.Rect(self.x, self.y, self.width, self.heigth)
-    def update(self, dt, speed):
-        self.y += 10*dt*speed
+    def update(self):
         self.rect = pygame.Rect(self.x, self.y, self.width, self.heigth)
         
