@@ -1,10 +1,8 @@
-import random
-from tkinter import CURRENT
 import pygame, sys
 import numpy as np
 from board import Board
 from blocks import sizes
-
+from animation import animation
 #values
 CLOCK = pygame.time.Clock()
 RUNNING = True
@@ -15,13 +13,23 @@ BOARD = Board()
 BOARD.create_grid()
 BLOCKS = []
 CURRENT_BLOCK = []
+FULL_ROWS = []
 MOVE = True
 DROP = 0
-SPEED = 7
+SPEED = 14
 GO_RIGHT = True
 GO_LEFT = True
 LEFT_HIT = True
 RIGHT_HIT = True
+BLOCK_LOCATIONS = {
+    "I": [],
+    "J": [],
+    "L": [],
+    "O": [],
+    "S": [],
+    "T": [],
+    "Z": [],
+}
 COLORS = {
     "I": (0, 240, 240),
     "J": (0, 0, 240),
@@ -38,7 +46,8 @@ def random_block():
     GO_RIGHT = True
     RIGHT_HIT = True
     LEFT_HIT = True
-    CURRENT_BLOCK = np.random.choice(["I", "J", "L", "O", "S", "T", "Z"], 1)
+    #CURRENT_BLOCK = np.random.choice(["I", "J", "L", "O", "S", "T", "Z"], 1)
+    CURRENT_BLOCK = np.random.choice(["O", "O"], 1)
     print(CURRENT_BLOCK)
     if CURRENT_BLOCK == "I":
         BLOCKS.append(sizes(260, 0, 40, 40))
@@ -78,7 +87,6 @@ def random_block():
         
 random_block()
 while RUNNING:
-    print(LEFT_HIT)
     dt = CLOCK.tick(60) / 1000
     DROP += SPEED*dt
     for event in pygame.event.get():
@@ -120,10 +128,10 @@ while RUNNING:
                 for col in range(BOARD.col):
                     for row in range(BOARD.row):
                         if BOARD.grid[row][col] == block.rect:
+                            BLOCK_LOCATIONS[CURRENT_BLOCK[0]].append(block)
                             BOARD.board[row][col] = CURRENT_BLOCK[0]
             BLOCKS = []
-            random_block()
-                              
+            random_block()                 
     # collision with placed blocks
     for col in range(BOARD.col):
         for row in range(BOARD.row):
@@ -146,19 +154,40 @@ while RUNNING:
                             for col in range(BOARD.col):
                                 for row in range(BOARD.row):
                                     if BOARD.grid[row][col] == block.rect:
+                                        BLOCK_LOCATIONS[CURRENT_BLOCK[0]].append(block)
                                         BOARD.board[row][col] = CURRENT_BLOCK[0]
                         BLOCKS = []
-                        random_block()                
-    #print(BOARD.board)          
+                        random_block()
+                        print(BLOCK_LOCATIONS)
+    # DESTROY ANIMATION                    
+    for row in range(BOARD.row):
+        if BOARD.board[row][0] != "" and BOARD.board[row][1] != "" and BOARD.board[row][2] != "" and BOARD.board[row][3] != "" and BOARD.board[row][4] != "" and BOARD.board[row][5] != "" and BOARD.board[row][6] != "" and BOARD.board[row][7] != "" and BOARD.board[row][8] != "" and BOARD.board[row][9] != "":
+            for i in range(10):
+                BOARD.board[row][i] = ""
+            FULL_ROWS.append(animation(row, DISPLAY))
+            
+
+    while len(FULL_ROWS) > 0:
+        for rows in FULL_ROWS:
+            rows.animate(dt, SPEED - 13)
+            pygame.display.update(rows.rect)
+            if rows.sizeright >= 200 and rows.sizeleft <= 100:
+                FULL_ROWS.remove(rows)
+    #print(BOARD.board)
+                    
+    # fix so blocks above a destoryed block falls down the lenght of which it was destroyed.
+    
     DISPLAY.fill(BACKGROUND)
     BOARD.draw_grid(DISPLAY)
+    # drawing falling block
     for block in BLOCKS:
         pygame.draw.rect(DISPLAY, COLORS[CURRENT_BLOCK[0]], block.rect)
-        
+    # drawing placed blocks    
     for col in range(BOARD.col):
         for row in range(BOARD.row):
             if BOARD.board[row][col] != "":
                 pygame.draw.rect(DISPLAY, COLORS[BOARD.board[row][col]], BOARD.grid[row][col])
+                
     pygame.draw.line(DISPLAY, (255, 255, 255), (0, 100), (100, 100), 5)
     pygame.draw.line(DISPLAY, (255, 255, 255), (500, 100), (600, 100), 5)
     pygame.draw.line(DISPLAY, (255, 255, 255), (100, 0), (100, 800), 5)
