@@ -16,7 +16,7 @@ CURRENT_BLOCK = []
 FULL_ROWS = []
 MOVE = True
 DROP = 0
-SPEED = 14
+SPEED = 15
 GO_RIGHT = True
 GO_LEFT = True
 LEFT_HIT = True
@@ -47,7 +47,7 @@ def random_block():
     RIGHT_HIT = True
     LEFT_HIT = True
     #CURRENT_BLOCK = np.random.choice(["I", "J", "L", "O", "S", "T", "Z"], 1)
-    CURRENT_BLOCK = np.random.choice(["O", "O"], 1)
+    CURRENT_BLOCK = np.random.choice(["L"], 1)
     print(CURRENT_BLOCK)
     if CURRENT_BLOCK == "I":
         BLOCKS.append(sizes(260, 0, 40, 40))
@@ -131,7 +131,8 @@ while RUNNING:
                             BLOCK_LOCATIONS[CURRENT_BLOCK[0]].append(block)
                             BOARD.board[row][col] = CURRENT_BLOCK[0]
             BLOCKS = []
-            random_block()                 
+            random_block()
+            print(BOARD.board)                 
     # collision with placed blocks
     for col in range(BOARD.col):
         for row in range(BOARD.row):
@@ -158,18 +159,33 @@ while RUNNING:
                                         BOARD.board[row][col] = CURRENT_BLOCK[0]
                         BLOCKS = []
                         random_block()
-                        print(BLOCK_LOCATIONS)
-    # DESTROY ANIMATION                    
+                        print(BOARD.board)
+    # DESTROY ANIMATION and removes destroyed blocks from block_locations                    
     for row in range(BOARD.row):
         if BOARD.board[row][0] != "" and BOARD.board[row][1] != "" and BOARD.board[row][2] != "" and BOARD.board[row][3] != "" and BOARD.board[row][4] != "" and BOARD.board[row][5] != "" and BOARD.board[row][6] != "" and BOARD.board[row][7] != "" and BOARD.board[row][8] != "" and BOARD.board[row][9] != "":
             for i in range(10):
+                for x, y in BLOCK_LOCATIONS.items():
+                    for blocks in y:
+                        if blocks.rect == BOARD.grid[row][i]:
+                            BLOCK_LOCATIONS[x].remove(blocks)
                 BOARD.board[row][i] = ""
             FULL_ROWS.append(animation(row, DISPLAY))
-            
-
+            for x, y in BLOCK_LOCATIONS.items():
+                for blocks in y:
+                    height = 800 - (20 - row) * 40
+                    if blocks.rect.top < height:           
+                        blocks.rect.top += 40
+                        for col in range(BOARD.col):
+                                for row in range(BOARD.row):
+                                    if BOARD.grid[row][col] == blocks.rect:
+                                        BOARD.board[row][col] = x
+                    print(height)
+                    
+            print(BOARD.board)
+            print(row)    
     while len(FULL_ROWS) > 0:
         for rows in FULL_ROWS:
-            rows.animate(dt, SPEED - 13)
+            rows.animate(dt, 2)
             pygame.display.update(rows.rect)
             if rows.sizeright >= 200 and rows.sizeleft <= 100:
                 FULL_ROWS.remove(rows)
