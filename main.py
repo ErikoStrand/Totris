@@ -1,3 +1,4 @@
+from tkinter import LEFT
 import pygame, sys
 import numpy as np
 from board import Board
@@ -19,8 +20,10 @@ DROP = 0
 SPEED = 10
 GO_RIGHT = True
 GO_LEFT = True
-LEFT_HIT = True
-RIGHT_HIT = True
+LEFT_HIT = [1, 1, 1, 1]
+RIGHT_HIT = [1, 1, 1, 1]
+LEFT_HIT_LOCATIONS = ["", "", "", ""]
+RIGHT_HIT_LOCATIONS = ["", "", "", ""]
 TURN = 1
 BLOCK_LOCATIONS = {
     "I": [],
@@ -42,13 +45,12 @@ COLORS = {
 }
 
 def random_block():
-    global CURRENT_BLOCK, GO_LEFT, GO_RIGHT, LEFT_HIT, RIGHT_HIT
+    global CURRENT_BLOCK, GO_LEFT, GO_RIGHT, RIGHT_HIT_LOCATIONS, LEFT_HIT_LOCATIONS
     GO_LEFT = True
     GO_RIGHT = True
-    RIGHT_HIT = True
-    LEFT_HIT = True
+    RIGHT_HIT_LOCATIONS, LEFT_HIT_LOCATIONS = ["", "", "", ""], ["", "", "", ""]
     #CURRENT_BLOCK = np.random.choice(["I", "J", "L", "O", "S", "T", "Z"], 1)
-    CURRENT_BLOCK = np.random.choice(["O", "I"], 1)
+    CURRENT_BLOCK = np.random.choice(["I", "J"], 1)
     print(CURRENT_BLOCK)
     if CURRENT_BLOCK == "I":
         BLOCKS.append(sizes(260, 0, 40, 40))
@@ -88,18 +90,20 @@ def random_block():
         
 random_block()
 while RUNNING:
+    print(LEFT_HIT, all(LEFT_HIT), "lEFT")
+    print(RIGHT_HIT, all(RIGHT_HIT), "RIGHT")
     dt = CLOCK.tick(60) / 1000
     DROP += SPEED*dt
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT and GO_RIGHT and RIGHT_HIT:
+            if event.key == pygame.K_RIGHT and GO_RIGHT and all(RIGHT_HIT):
                 GO_LEFT = True
                 for block in BLOCKS:
                     block.x += 40
                                 
-            if event.key == pygame.K_LEFT and GO_LEFT and LEFT_HIT:
+            if event.key == pygame.K_LEFT and GO_LEFT and all(LEFT_HIT):
                 GO_RIGHT = True
                 for block in BLOCKS:
                     block.x -= 40
@@ -145,12 +149,27 @@ while RUNNING:
                     # PLACED FLOOR
                     #left wall
                     if block.rect.midleft == BOARD.grid[row][col].midright:
-                        LEFT_HIT = False
+                        LEFT_HIT_LOCATIONS.insert(count, BOARD.grid[row][col].midright)
+                        LEFT_HIT.pop(count)
+                        LEFT_HIT.insert(count, 0)
                         
                     # right wall
                     if block.rect.midright == BOARD.grid[row][col].midleft:
-                        RIGHT_HIT = False
-                               
+                        RIGHT_HIT_LOCATIONS.insert(count, BOARD.grid[row][col].midleft)
+                        RIGHT_HIT.pop(count)
+                        RIGHT_HIT.insert(count, 0)
+                    #left wall
+                    if len(LEFT_HIT_LOCATIONS) > 0:
+                        if block.rect.midleft != LEFT_HIT_LOCATIONS[count]:
+                            LEFT_HIT.pop(count)
+                            LEFT_HIT.insert(count, 1)
+                            
+                            #print(block.rect.midleft, LEFT_HIT_LOCATIONS, "are not the same")
+                    if len(LEFT_HIT_LOCATIONS) > 0:
+                        if block.rect.midright != RIGHT_HIT_LOCATIONS[count]:
+                            RIGHT_HIT.pop(count)
+                            RIGHT_HIT.insert(count, 1)    
+                                
                     if block.rect == BOARD.grid[row][col]:
                         print(block.rect, BOARD.grid[row][col])
                         for block in BLOCKS:
